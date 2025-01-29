@@ -1,13 +1,29 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import AppHeader from './components/AppHeader.vue'
+import AppFooter from './components/AppFooter.vue'
+</script>
 
 <template>
-  <header>Helloworld</header>
+  <div class="wrapper">
+    <header><AppHeader /></header>
 
-  <main>Helloworld2</main>
+    <div class="visualizer"></div>
 
-  <footer>
-    <p>Edit <code>src/App.vue</code> and save to reload.</p>
-  </footer>
+    <footer>
+      <AppFooter />
+    </footer>
+  </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.visualizer {
+  flex: 1;
+  background-color: #282c34;
+}
+</style>
