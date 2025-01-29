@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import AppHeader from './components/AppHeader.vue'
 import AppFooter from './components/AppFooter.vue'
+import AppVisualizer from './components/AppVisualizer.vue'
 </script>
 
 <template>
   <div class="wrapper">
     <header><AppHeader /></header>
 
-    <div class="visualizer"></div>
+    <div class="visualizer">
+      <AppVisualizer />
+    </div>
 
     <footer>
       <AppFooter />
@@ -19,11 +22,22 @@ import AppFooter from './components/AppFooter.vue'
 .wrapper {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  max-height: 50vh;
+}
+
+header {
+  flex: 0 0 auto;
+  flex-shrink: 1;
 }
 
 .visualizer {
-  flex: 1;
-  background-color: #282c34;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+footer {
+  flex: 0 0 auto;
+  flex-shrink: 1;
 }
 </style>
