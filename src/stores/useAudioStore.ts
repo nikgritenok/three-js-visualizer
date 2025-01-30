@@ -1,12 +1,18 @@
 import { defineStore } from 'pinia'
 import * as THREE from 'three'
+import type { ISong } from '@/types'
 
 export const useAudioStore = defineStore('audio', {
   state: () => ({
-    currentSong: '',
+    currentSong: { name: '', src: '' } as ISong,
     sound: null as THREE.Audio | null,
     listener: null as THREE.AudioListener | null,
     analyser: null as THREE.AudioAnalyser | null,
+    songs: [
+      { name: 'dominic fike - baby doll', src: '/src/assets/songs/dominic vike - baby doll.mp3' },
+      { name: 'frozy - kompa passion', src: '/src/assets/songs/frozy - kompa passion.mp3' },
+      { name: 'saluki - north north', src: '/src/assets/songs/saluki - north north.mp3' },
+    ],
   }),
 
   actions: {
@@ -22,23 +28,29 @@ export const useAudioStore = defineStore('audio', {
       this.analyser = new THREE.AudioAnalyser(this.sound, analyserSize)
     },
 
-    loadSong(songPath: string) {
+    loadSong(song: ISong) {
       if (!this.sound || !this.listener) return
 
       // Если уже есть звук, остановить его перед загрузкой нового
       if (this.sound.isPlaying) {
         this.sound.stop()
       }
+      if (song.src) {
+        console.log('song.src', song.src)
+      } else {
+        console.log('song.src', 'empty')
+      }
 
       const audioLoader = new THREE.AudioLoader()
-      audioLoader.load(songPath, (buffer) => {
+      console.log('song.src', song.src)
+      audioLoader.load(song.src, (buffer) => {
         this.sound!.setBuffer(buffer)
 
         // Событие окончания трека
-        this.sound!.onEnded = () => this.setCurrentSong('')
+        this.sound!.onEnded = () => this.setCurrentSong({ name: '', src: '' })
 
         // Устанавливаем текущую песню и сразу запускаем проигрывание
-        this.setCurrentSong(songPath)
+        this.setCurrentSong(song)
         this.play()
       })
     },
@@ -63,8 +75,8 @@ export const useAudioStore = defineStore('audio', {
       }
     },
 
-    setCurrentSong(songPath: string) {
-      this.currentSong = songPath
+    setCurrentSong(song: ISong) {
+      this.currentSong = song
     },
   },
 })
