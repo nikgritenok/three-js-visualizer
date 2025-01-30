@@ -193,7 +193,10 @@ onMounted(() => {
     // ИНИЦИАЛИЗАЦИЯ АУДИО В СТОРЕ
     store.initAudio(camera, 32)
     // Загружаем нужный трек
-    store.loadSong('/src/assets/songs/dominic vike - baby doll.mp3')
+    store.loadSong({
+      name: 'dominic fike - baby doll',
+      src: '/src/assets/songs/dominic vike - baby doll.mp3',
+    })
 
     if (visualizer.value) {
       const guiContainer = document.createElement('div')

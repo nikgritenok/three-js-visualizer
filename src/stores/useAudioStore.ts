@@ -35,14 +35,9 @@ export const useAudioStore = defineStore('audio', {
       if (this.sound.isPlaying) {
         this.sound.stop()
       }
-      if (song.src) {
-        console.log('song.src', song.src)
-      } else {
-        console.log('song.src', 'empty')
-      }
 
       const audioLoader = new THREE.AudioLoader()
-      console.log('song.src', song.src)
+
       audioLoader.load(song.src, (buffer) => {
         this.sound!.setBuffer(buffer)
 
@@ -73,6 +68,18 @@ export const useAudioStore = defineStore('audio', {
       if (this.sound && this.sound.isPlaying) {
         this.sound.pause()
       }
+    },
+
+    next() {
+      const currentIndex = this.songs.findIndex((song) => song.src === this.currentSong.src)
+      const nextIndex = (currentIndex + 1) % this.songs.length
+      this.loadSong(this.songs[nextIndex])
+    },
+
+    prev() {
+      const currentIndex = this.songs.findIndex((song) => song.src === this.currentSong.src)
+      const prevIndex = (currentIndex - 1 + this.songs.length) % this.songs.length
+      this.loadSong(this.songs[prevIndex])
     },
 
     setCurrentSong(song: ISong) {
