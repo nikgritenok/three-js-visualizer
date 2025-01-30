@@ -1,12 +1,19 @@
 <script setup lang="ts">
 import { useAudioStore } from '@/stores/useAudioStore'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { ISong } from '@/types'
 
 const store = useAudioStore()
 
 const visible = ref(false)
 const showVolumeSlider = ref(false)
+
+function formatTime(duration: number): string {
+  const totalSeconds = Math.floor(duration)
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+}
 
 // Функция для выбора песни
 const playSong = (song: ISong) => {
@@ -35,7 +42,18 @@ const toggleVolume = () => {
           <span>{{ store.currentSong && store.currentSong.name }}</span>
         </div>
       </div>
-      <div class="progress"></div>
+      <div class="progress">
+        <span>{{ formatTime(store.currentTime) }}</span>
+        <input
+          type="range"
+          id="progress"
+          :value="store.currentTime"
+          :max="store.duration"
+          step="0.1"
+          @input="store.setTime(parseFloat(($event.target as HTMLInputElement).value))"
+        />
+        <span>{{ formatTime(store.duration) }}</span>
+      </div>
       <div class="controls gap-2 flex">
         <i class="pi pi-step-backward" @click="store.prev()"></i>
         <i v-if="store.sound?.isPlaying" class="pi pi-pause" @click="store.pause()"></i>
@@ -82,7 +100,7 @@ const toggleVolume = () => {
 
 .song {
   cursor: pointer;
-  width: 300px;
+  width: 500px;
   max-width: 50%;
   margin-top: -10px;
   padding-top: 10px;
@@ -111,7 +129,20 @@ li {
 }
 
 .volume-slider input[type='range'] {
+  flex-grow: 1;
+  width: 100%;
   transform: rotate(-90deg); /* Поворачиваем ползунок */
-  width: 80px; /* Задаем фиксированную ширину */
+  width: 80px;
+}
+
+.progress {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+}
+
+.progress input[id='progress'] {
+  flex-grow: 1;
+  margin: 0 10px;
 }
 </style>

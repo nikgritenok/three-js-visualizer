@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import * as THREE from 'three'
 import type { ISong } from '@/types'
-import { Volume } from 'three/examples/jsm/Addons.js'
 
 export const useAudioStore = defineStore('audio', {
   state: () => ({
@@ -9,6 +8,8 @@ export const useAudioStore = defineStore('audio', {
     sound: null as THREE.Audio | null,
     listener: null as THREE.AudioListener | null,
     analyser: null as THREE.AudioAnalyser | null,
+    currentTime: 0, // Текущее время трека
+    duration: 0, // Длительность трека
     volume: 0.5 as number,
     songs: [
       { name: 'dominic fike - baby doll', src: '/src/assets/songs/dominic vike - baby doll.mp3' },
@@ -30,6 +31,18 @@ export const useAudioStore = defineStore('audio', {
       this.analyser = new THREE.AudioAnalyser(this.sound, analyserSize)
     },
 
+    updateProgress() {
+      if (!this.sound) return
+
+      const update = () => {
+        if (!this.sound || !this.sound.isPlaying) return
+        this.currentTime = this.sound.context.currentTime
+        requestAnimationFrame(update)
+      }
+
+      update()
+    },
+
     loadSong(song: ISong) {
       if (!this.sound || !this.listener) return
 
@@ -42,9 +55,9 @@ export const useAudioStore = defineStore('audio', {
 
       audioLoader.load(song.src, (buffer) => {
         this.sound!.setBuffer(buffer)
-
-        // Событие окончания трека
+        this.sound!.setVolume(this.volume)
         this.sound!.onEnded = () => this.setCurrentSong({ name: '', src: '' })
+        this.duration = buffer.duration
 
         // Устанавливаем текущую песню и сразу запускаем проигрывание
         this.setCurrentSong(song)
@@ -58,10 +71,18 @@ export const useAudioStore = defineStore('audio', {
         this.sound.setVolume(volume)
       }
     },
+    setTime(time: number) {
+      if (this.sound && this.sound.isPlaying) {
+        this.sound.stop() // Останавливаем воспроизведение
+        this.sound.play(time) // Запускаем воспроизведение с нового времени (в секундах)
+        this.currentTime = time // Обновляем текущее время
+      }
+    },
 
     play() {
       if (this.sound && !this.sound.isPlaying) {
         this.sound.play()
+        this.updateProgress()
       }
     },
 
@@ -82,12 +103,14 @@ export const useAudioStore = defineStore('audio', {
     next() {
       const currentIndex = this.songs.findIndex((song) => song.src === this.currentSong.src)
       const nextIndex = (currentIndex + 1) % this.songs.length
+      this.currentTime = 0
       this.loadSong(this.songs[nextIndex])
     },
 
     prev() {
       const currentIndex = this.songs.findIndex((song) => song.src === this.currentSong.src)
       const prevIndex = (currentIndex - 1 + this.songs.length) % this.songs.length
+      this.currentTime = 0
       this.loadSong(this.songs[prevIndex])
     },
 
