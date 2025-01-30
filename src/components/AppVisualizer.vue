@@ -9,13 +9,11 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, nextTick } from 'vue'
 import { useAudioStore } from '@/stores/useAudioStore'
-import { nextTick } from 'vue'
 
+// ИНИЦИАЛИЗАЦИЯ СЦЕНЫ, КАМЕРЫ, РЕНДЕРА
 const store = useAudioStore()
-
-// Создание сцены, камеры и рендера
 const renderer = new THREE.WebGLRenderer({ antialias: true })
 renderer.setSize(window.innerWidth, 1000)
 
@@ -24,8 +22,7 @@ const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerH
 camera.position.set(0, -2, 14)
 camera.lookAt(0, 0, 0)
 
-// Параметры
-
+// ПАРАМЕТРЫ
 const params = {
   red: 1.0,
   green: 1.0,
@@ -37,21 +34,17 @@ const params = {
 
 renderer.outputColorSpace = THREE.SRGBColorSpace
 
-// Постпроцессинг
-
+// ПОСТПРОЦЕССИНГ
 const renderScene = new RenderPass(scene, camera)
-
 const bloomPass = new UnrealBloomPass(
   new THREE.Vector2(window.innerWidth, window.innerHeight * 0.9),
   params.strength,
   params.radius,
   params.threshold,
 )
-
 const bloomComposer = new EffectComposer(renderer)
 bloomComposer.addPass(renderScene)
 bloomComposer.addPass(bloomPass)
-
 const outputPass = new OutputPass()
 bloomComposer.addPass(outputPass)
 
@@ -63,8 +56,7 @@ const uniforms = {
   u_blue: { type: 'f', value: 1.0 },
 }
 
-// Свет
-
+// СВЕТ
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
 scene.add(ambientLight)
 
@@ -72,21 +64,20 @@ const dirLight = new THREE.DirectionalLight(0xffffff, 0.5)
 dirLight.position.set(10, 10, 10)
 scene.add(dirLight)
 
-// Материал
-
+// МАТЕРИАЛ
 const material = new THREE.ShaderMaterial({
   uniforms,
   vertexShader: vertexShader,
   fragmentShader: fragmentShader,
 })
 
-// Создание объекта
+// СОЗДАНИЕ ОБЪЕКТА
 const geometry = new THREE.IcosahedronGeometry(4, 30)
 const mesh = new THREE.Mesh(geometry, material)
 scene.add(mesh)
 mesh.material.wireframe = true
 
-// Управление камерой
+// УПРАВЛЕНИЕ КАМЕРОЙ
 const controls = new OrbitControls(camera, renderer.domElement)
 controls.enableDamping = true
 controls.dampingFactor = 0.25
@@ -94,31 +85,11 @@ controls.screenSpacePanning = false
 controls.minDistance = 2
 controls.maxDistance = 10
 
-// Звук
-const listener = new THREE.AudioListener()
-camera.add(listener)
-
-const sound = new THREE.Audio(listener)
-
-const audioLoader = new THREE.AudioLoader()
-audioLoader.load('/src/assets//songs/dominic vike - baby doll.mp3', function (buffer) {
-  sound.setBuffer(buffer)
-  sound.onEnded = () => store.setCurrentSong('')
-  store.setCurrentSong('song.mp3')
-  visualizer.value?.addEventListener('click', function () {
-    sound.play()
-  })
-  visualizer.value?.addEventListener('dblclick', function () {
-    sound.pause()
-  })
-})
-
-const analyser = new THREE.AudioAnalyser(sound, 32)
+// УДАЛЯЕМ ЛОГИКУ СО ЗВУКОМ ИЗ КОМПОНЕНТА!
+// Вместо неё будем обращаться только к методу initAudio() и loadSong() из стора.
 
 // GUI
-
 const gui = new GUI({ autoPlace: false })
-
 const colorsFolder = gui.addFolder('Цвет')
 colorsFolder
   .add(params, 'red', 0, 1)
@@ -162,17 +133,14 @@ bloomFolder
     bloomComposer.render()
   })
 
-// Получаем ссылку на div с классом visualizer
+// ССЫЛКА НА DIV.visualizer
 const visualizer = ref<HTMLElement | null>(null)
 
-const footer = document.querySelector('.footer')
-
-// Обработчик события на изменение размера окна
+// ОБРАБОТКА РАЗМЕРА ОКНА
 function updateRendererSize() {
   nextTick(() => {
     const footer = document.querySelector('.footer') as HTMLElement | null
     const footerHeight = footer ? footer.offsetHeight : 0
-    console.log(footerHeight)
 
     renderer.setSize(window.innerWidth, window.innerHeight - footerHeight)
     camera.aspect = window.innerWidth / (window.innerHeight - footerHeight)
@@ -184,14 +152,14 @@ const resizeObserver = new ResizeObserver(() => {
   updateRendererSize()
 })
 
+const footer = document.querySelector('.footer')
 if (footer) {
   resizeObserver.observe(footer)
 }
 
-// Добавление обработчика события на изменение окна
 window.addEventListener('resize', updateRendererSize)
 
-// Добавление обработчика события на движение мыши
+// ДВИЖЕНИЕ МЫШИ (для эффекта, если нужно)
 let mouseX = 0
 let mouseY = 0
 document.addEventListener('mousemove', function (e) {
@@ -201,43 +169,51 @@ document.addEventListener('mousemove', function (e) {
   mouseY = (e.clientY - windowHalfY) / 100
 })
 
+// АНИМАЦИЯ
 const clock = new THREE.Clock()
 
-// Функция анимации
 function animate() {
+  // Обновляем uniform'ы
   uniforms.u_time.value = clock.getElapsedTime()
-  uniforms.u_frequency.value = analyser.getAverageFrequency()
+
+  // Достаём частоту из Analyser'а из стора, если он есть
+  if (store.analyser) {
+    uniforms.u_frequency.value = store.analyser.getAverageFrequency()
+  }
+
   bloomComposer.render()
   requestAnimationFrame(animate)
-
   controls.update()
 }
 
 onMounted(() => {
   nextTick(() => {
     updateRendererSize()
-    store.initAudio(camera)
+
+    // ИНИЦИАЛИЗАЦИЯ АУДИО В СТОРЕ
+    store.initAudio(camera, 32)
+    // Загружаем нужный трек
+    store.loadSong('/src/assets/songs/dominic vike - baby doll.mp3')
 
     if (visualizer.value) {
-      //updateRendererSize() // Убедитесь, что размеры обновляются при монтировании
-
-      // Создание контейнера для GUI
       const guiContainer = document.createElement('div')
       guiContainer.style.position = 'absolute'
       guiContainer.style.top = '0px'
       guiContainer.style.right = '0px'
 
-      // Останавливаем всплытие события
+      // Чтобы клики по GUI не шли "сквозь" интерфейс
       guiContainer.addEventListener('click', (event) => {
         event.stopPropagation()
       })
 
-      // Добавление элементов в visualizer
-      visualizer.value.appendChild(renderer.domElement) // Если renderer уже инициализирован
-      visualizer.value.appendChild(guiContainer) // Добавляем контейнер для GUI в visualizer
-
-      // Добавление элементов GUI внутрь созданного контейнера
+      visualizer.value.appendChild(renderer.domElement)
+      visualizer.value.appendChild(guiContainer)
       guiContainer.appendChild(gui.domElement)
+
+      // При клике на визуализатор (или другую кнопку) включаем звук
+      visualizer.value.addEventListener('click', () => {
+        store.togglePlay()
+      })
 
       animate()
     } else {
