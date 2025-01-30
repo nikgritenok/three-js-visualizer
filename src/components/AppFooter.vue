@@ -32,7 +32,11 @@ const toggleVolume = () => {
       <div class="flex">
         <app-drawer v-model:visible="visible" header="Список песен">
           <ul>
-            <li v-for="song in store.songs" :key="song.name" @click="playSong(song)">
+            <li
+              v-for="song in store.songs"
+              :key="song.name"
+              @click="(playSong(song), (visible = false))"
+            >
               {{ song.name }}
             </li>
           </ul>
