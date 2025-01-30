@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import * as THREE from 'three'
 import type { ISong } from '@/types'
+import { Volume } from 'three/examples/jsm/Addons.js'
 
 export const useAudioStore = defineStore('audio', {
   state: () => ({
@@ -8,6 +9,7 @@ export const useAudioStore = defineStore('audio', {
     sound: null as THREE.Audio | null,
     listener: null as THREE.AudioListener | null,
     analyser: null as THREE.AudioAnalyser | null,
+    volume: 0.5 as number,
     songs: [
       { name: 'dominic fike - baby doll', src: '/src/assets/songs/dominic vike - baby doll.mp3' },
       { name: 'frozy - kompa passion', src: '/src/assets/songs/frozy - kompa passion.mp3' },
@@ -48,6 +50,13 @@ export const useAudioStore = defineStore('audio', {
         this.setCurrentSong(song)
         this.play()
       })
+    },
+
+    setVolume(volume: number) {
+      this.volume = volume
+      if (this.sound) {
+        this.sound.setVolume(volume)
+      }
     },
 
     play() {

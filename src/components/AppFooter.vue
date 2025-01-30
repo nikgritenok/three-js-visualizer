@@ -6,17 +6,22 @@ import type { ISong } from '@/types'
 const store = useAudioStore()
 
 const visible = ref(false)
+const showVolumeSlider = ref(false)
 
 // Функция для выбора песни
 const playSong = (song: ISong) => {
   console.log(song)
   store.loadSong(song)
 }
+
+const toggleVolume = () => {
+  showVolumeSlider.value = !showVolumeSlider.value
+}
 </script>
 
 <template>
   <div class="footer flex">
-    <div class="player box flex">
+    <div class="player box flex gap-3">
       <div class="flex">
         <app-drawer v-model:visible="visible" header="Список песен">
           <ul>
@@ -37,7 +42,20 @@ const playSong = (song: ISong) => {
         <i v-else class="pi pi-play" @click="store.play()"></i>
         <i class="pi pi-step-forward" @click="store.next()"></i>
       </div>
-      <div class="volume"></div>
+      <div class="volume">
+        <i class="pi pi-volume-up" @click="toggleVolume"></i>
+        <div class="volume-slider" v-if="showVolumeSlider">
+          <input
+            type="range"
+            orient="vertical"
+            min="0"
+            max="1"
+            step="0.01"
+            v-model="store.volume"
+            @input="store.setVolume(parseFloat(($event.target as HTMLInputElement).value ?? 0))"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -49,6 +67,9 @@ const playSong = (song: ISong) => {
   left: 0px;
   right: 0px;
   height: 40px;
+
+  display: flex;
+  align-items: center;
 
   border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
@@ -72,5 +93,25 @@ const playSong = (song: ISong) => {
 
 li {
   cursor: pointer;
+}
+
+.volume {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.volume-slider {
+  position: absolute;
+  bottom: 60px; /* Расположить выше иконки */
+  left: 50%;
+  transform: translateX(-50%); /* Центрирование */
+  display: flex;
+  justify-content: center;
+}
+
+.volume-slider input[type='range'] {
+  transform: rotate(-90deg); /* Поворачиваем ползунок */
+  width: 80px; /* Задаем фиксированную ширину */
 }
 </style>

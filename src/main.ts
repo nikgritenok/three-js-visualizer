@@ -10,6 +10,7 @@ import Aura from '@primevue/themes/aura'
 
 import Drawer from 'primevue/drawer'
 import Button from 'primevue/button'
+import Slider from 'primevue/slider'
 
 const app = createApp(App)
 
@@ -22,5 +23,6 @@ app.use(createPinia())
 
 app.component('app-drawer', Drawer)
 app.component('app-button', Button)
+app.component('app-slider', Slider)
 
 app.mount('#app')
