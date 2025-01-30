@@ -10,12 +10,15 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 
 import { onMounted, ref } from 'vue'
+import { useAudioStore } from '@/stores/useAudioStore'
+import { nextTick } from 'vue'
 
-let footerHeight = 0
+const store = useAudioStore()
 
 // Создание сцены, камеры и рендера
 const renderer = new THREE.WebGLRenderer({ antialias: true })
-renderer.setSize(window.innerWidth, window.innerHeight - footerHeight)
+renderer.setSize(window.innerWidth, 1000)
+
 const scene = new THREE.Scene()
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
 camera.position.set(0, -2, 14)
@@ -39,7 +42,7 @@ renderer.outputColorSpace = THREE.SRGBColorSpace
 const renderScene = new RenderPass(scene, camera)
 
 const bloomPass = new UnrealBloomPass(
-  new THREE.Vector2(window.innerWidth, window.innerHeight - footerHeight),
+  new THREE.Vector2(window.innerWidth, window.innerHeight * 0.9),
   params.strength,
   params.radius,
   params.threshold,
@@ -98,10 +101,15 @@ camera.add(listener)
 const sound = new THREE.Audio(listener)
 
 const audioLoader = new THREE.AudioLoader()
-audioLoader.load('/src/assets//songs/song.mp3', function (buffer) {
+audioLoader.load('/src/assets//songs/dominic vike - baby doll.mp3', function (buffer) {
   sound.setBuffer(buffer)
+  sound.onEnded = () => store.setCurrentSong('')
+  store.setCurrentSong('song.mp3')
   visualizer.value?.addEventListener('click', function () {
     sound.play()
+  })
+  visualizer.value?.addEventListener('dblclick', function () {
+    sound.pause()
   })
 })
 
@@ -111,41 +119,73 @@ const analyser = new THREE.AudioAnalyser(sound, 32)
 
 const gui = new GUI({ autoPlace: false })
 
-const colorsFolder = gui.addFolder('Colors')
-colorsFolder.add(params, 'red', 0, 1).onChange(function (value) {
-  uniforms.u_red.value = Number(value)
-})
-colorsFolder.add(params, 'green', 0, 1).onChange(function (value) {
-  uniforms.u_green.value = Number(value)
-})
-colorsFolder.add(params, 'blue', 0, 1).onChange(function (value) {
-  uniforms.u_blue.value = Number(value)
-})
+const colorsFolder = gui.addFolder('Цвет')
+colorsFolder
+  .add(params, 'red', 0, 1)
+  .name('Красный')
+  .onChange(function (value) {
+    uniforms.u_red.value = Number(value)
+  })
+colorsFolder
+  .add(params, 'green', 0, 1)
+  .name('Зеленый')
+  .onChange(function (value) {
+    uniforms.u_green.value = Number(value)
+  })
+colorsFolder
+  .add(params, 'blue', 0, 1)
+  .name('Синий')
+  .onChange(function (value) {
+    uniforms.u_blue.value = Number(value)
+  })
 
-const bloomFolder = gui.addFolder('Bloom')
-bloomFolder.add(params, 'threshold', 0, 1).onChange(function (value) {
-  bloomPass.threshold = Number(value)
-})
-bloomFolder.add(params, 'strength', 0, 3).onChange(function (value) {
-  bloomPass.strength = Number(value)
-})
-bloomFolder.add(params, 'radius', 0, 1).onChange(function (value) {
-  bloomPass.radius = Number(value)
-})
+const bloomFolder = gui.addFolder('Свечение')
+bloomFolder
+  .add(params, 'threshold', 0, 1)
+  .name('Порог')
+  .onChange(function (value) {
+    bloomPass.threshold = Number(value)
+    bloomComposer.render()
+  })
+bloomFolder
+  .add(params, 'strength', 0, 3)
+  .name('Сила')
+  .onChange(function (value) {
+    bloomPass.strength = Number(value)
+    bloomComposer.render()
+  })
+bloomFolder
+  .add(params, 'radius', 0, 1)
+  .name('Радиус')
+  .onChange(function (value) {
+    bloomPass.radius = Number(value)
+    bloomComposer.render()
+  })
 
 // Получаем ссылку на div с классом visualizer
 const visualizer = ref<HTMLElement | null>(null)
 
+const footer = document.querySelector('.footer')
+
 // Обработчик события на изменение размера окна
 function updateRendererSize() {
-  footerHeight = document.querySelector('.footer')?.clientHeight || 0
-  if (visualizer.value) {
-    visualizer.value.style.height = `${window.innerHeight - footerHeight}px`
-  }
-  renderer.setSize(window.innerWidth, window.innerHeight - footerHeight)
-  bloomPass.setSize(window.innerWidth, window.innerHeight - footerHeight)
-  camera.aspect = window.innerWidth / (window.innerHeight - footerHeight)
-  camera.updateProjectionMatrix()
+  nextTick(() => {
+    const footer = document.querySelector('.footer') as HTMLElement | null
+    const footerHeight = footer ? footer.offsetHeight : 0
+    console.log(footerHeight)
+
+    renderer.setSize(window.innerWidth, window.innerHeight - footerHeight)
+    camera.aspect = window.innerWidth / (window.innerHeight - footerHeight)
+    camera.updateProjectionMatrix()
+  })
+}
+
+const resizeObserver = new ResizeObserver(() => {
+  updateRendererSize()
+})
+
+if (footer) {
+  resizeObserver.observe(footer)
 }
 
 // Добавление обработчика события на изменение окна
@@ -171,35 +211,39 @@ function animate() {
   requestAnimationFrame(animate)
 
   controls.update()
-  renderer.render(scene, camera)
 }
 
 onMounted(() => {
-  if (visualizer.value) {
-    // Создание контейнера для GUI
-    const guiContainer = document.createElement('div')
-    guiContainer.style.position = 'absolute'
-    guiContainer.style.top = '0px'
-    guiContainer.style.right = '0px'
+  nextTick(() => {
+    updateRendererSize()
+    store.initAudio(camera)
 
-    // Останавливаем всплытие события
-    guiContainer.addEventListener('click', (event) => {
-      event.stopPropagation()
-    })
+    if (visualizer.value) {
+      //updateRendererSize() // Убедитесь, что размеры обновляются при монтировании
 
-    // Добавление элементов в visualizer
-    visualizer.value.appendChild(renderer.domElement) // Если renderer уже инициализирован
-    visualizer.value.appendChild(guiContainer) // Добавляем контейнер для GUI в visualizer
+      // Создание контейнера для GUI
+      const guiContainer = document.createElement('div')
+      guiContainer.style.position = 'absolute'
+      guiContainer.style.top = '0px'
+      guiContainer.style.right = '0px'
 
-    // Добавление элементов GUI внутрь созданного контейнера
-    guiContainer.appendChild(gui.domElement)
+      // Останавливаем всплытие события
+      guiContainer.addEventListener('click', (event) => {
+        event.stopPropagation()
+      })
 
-    updateRendererSize() // Убедитесь, что размеры обновляются при монтировании
+      // Добавление элементов в visualizer
+      visualizer.value.appendChild(renderer.domElement) // Если renderer уже инициализирован
+      visualizer.value.appendChild(guiContainer) // Добавляем контейнер для GUI в visualizer
 
-    animate()
-  } else {
-    console.error("Div with class 'visualizer' not found!")
-  }
+      // Добавление элементов GUI внутрь созданного контейнера
+      guiContainer.appendChild(gui.domElement)
+
+      animate()
+    } else {
+      console.error("Div with class 'visualizer' not found!")
+    }
+  })
 })
 </script>
 
@@ -211,6 +255,5 @@ onMounted(() => {
 .visualizer {
   position: relative;
   width: 100%;
-  height: 100vh;
 }
 </style>

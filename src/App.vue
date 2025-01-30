@@ -5,16 +5,15 @@ import AppVisualizer from './components/AppVisualizer.vue'
 
 <template>
   <div class="wrapper">
-    <div class="visualizer">
-      <AppVisualizer />
-    </div>
-
-    <footer>
-      <AppFooter />
-    </footer>
+    <AppVisualizer />
+    <AppFooter />
   </div>
 </template>
 
 <style scoped>
-
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
 </style>

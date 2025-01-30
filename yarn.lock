@@ -568,7 +568,7 @@
 
 "@primevue/themes@^4.2.5":
   version "4.2.5"
-  resolved "https://registry.npmjs.org/@primevue/themes/-/themes-4.2.5.tgz"
+  resolved "https://registry.yarnpkg.com/@primevue/themes/-/themes-4.2.5.tgz#7f05927581c37a9f97fad1bbd7b648ec34356355"
   integrity sha512-8F7yA36xYIKtNuAuyBdZZEks/bKDwlhH5WjpqGGB0FdwfAEoBYsynQ5sdqcT2Lb/NsajHmS5lc++Ttlvr1g1Lw==
   dependencies:
     "@primeuix/styled" "^0.3.2"
@@ -2102,7 +2102,7 @@ primeicons@^7.0.0:
 
 primevue@^4.2.5:
   version "4.2.5"
-  resolved "https://registry.npmjs.org/primevue/-/primevue-4.2.5.tgz"
+  resolved "https://registry.yarnpkg.com/primevue/-/primevue-4.2.5.tgz#6229e4a9be4e3ae9de83c2b1fc4360011b9bf9de"
   integrity sha512-7UMOIJvdFz4jQyhC76yhNdSlHtXvVpmE2JSo2ndUTBWjWJOkYyT562rQ4ayO+bMdJLtzBGqgY64I9ZfEvNd7vQ==
   dependencies:
     "@primeuix/styled" "^0.3.2"
