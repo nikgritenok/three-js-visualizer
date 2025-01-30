@@ -227,12 +227,27 @@ onMounted(() => {
 </script>
 
 <template>
-  <div ref="visualizer" class="visualizer"></div>
+  <div ref="visualizer" class="visualizer">
+    <div class="visualizer-title">Аудиовизуалайзер</div>
+  </div>
 </template>
 
 <style scoped>
 .visualizer {
   position: relative;
   width: 100%;
+}
+
+.visualizer-title {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+  letter-spacing: 5px;
 }
 </style>
