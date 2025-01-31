@@ -88,6 +88,7 @@ controls.minDistance = 2
 controls.maxDistance = 10
 
 // GUI
+console.log('params где gui', params)
 const gui = new GUI({ autoPlace: false })
 const colorsFolder = gui.addFolder('Цвет')
 colorsFolder
@@ -95,18 +96,21 @@ colorsFolder
   .name('Красный')
   .onChange(function (value) {
     uniforms.u_red.value = Number(value)
+    localStorage.setItem('visualizerParams', JSON.stringify(params)) // Сохраняем параметры в localStorage
   })
 colorsFolder
   .add(params, 'green', 0, 1)
   .name('Зеленый')
   .onChange(function (value) {
     uniforms.u_green.value = Number(value)
+    localStorage.setItem('visualizerParams', JSON.stringify(params)) // Сохраняем параметры в localStorage
   })
 colorsFolder
   .add(params, 'blue', 0, 1)
   .name('Синий')
   .onChange(function (value) {
     uniforms.u_blue.value = Number(value)
+    localStorage.setItem('visualizerParams', JSON.stringify(params)) // Сохраняем параметры в localStorage
   })
 
 const bloomFolder = gui.addFolder('Свечение')
@@ -116,6 +120,7 @@ bloomFolder
   .onChange(function (value) {
     bloomPass.threshold = Number(value)
     bloomComposer.render()
+    localStorage.setItem('visualizerParams', JSON.stringify(params)) // Сохраняем параметры в localStorage
   })
 bloomFolder
   .add(params, 'strength', 0, 3)
@@ -123,6 +128,7 @@ bloomFolder
   .onChange(function (value) {
     bloomPass.strength = Number(value)
     bloomComposer.render()
+    localStorage.setItem('visualizerParams', JSON.stringify(params)) // Сохраняем параметры в localStorage
   })
 bloomFolder
   .add(params, 'radius', 0, 1)
@@ -130,6 +136,7 @@ bloomFolder
   .onChange(function (value) {
     bloomPass.radius = Number(value)
     bloomComposer.render()
+    localStorage.setItem('visualizerParams', JSON.stringify(params)) // Сохраняем параметры в localStorage
   })
 
 // обработка изменения окна
@@ -172,6 +179,26 @@ function animate() {
 
 onMounted(() => {
   nextTick(() => {
+    const savedParams = localStorage.getItem('visualizerParams')
+    if (savedParams) {
+      const parsedParams = JSON.parse(savedParams)
+      Object.assign(params, parsedParams)
+
+      // Применить параметры к шейдерам
+      uniforms.u_red.value = parsedParams.red
+      uniforms.u_green.value = parsedParams.green
+      uniforms.u_blue.value = parsedParams.blue
+
+      // Применить параметры к эффекту свечения
+      bloomPass.threshold = parsedParams.threshold
+      bloomPass.strength = parsedParams.strength
+      bloomPass.radius = parsedParams.radius
+
+      gui.updateDisplay()
+    }
+
+    console.log('params где парсятся', params)
+
     updateRendererSize()
 
     store.initAudio(camera, 32)
@@ -187,6 +214,7 @@ onMounted(() => {
       guiContainer.style.right = '0px'
 
       guiContainer.addEventListener('click', (event) => {
+        console.log('click')
         event.stopPropagation()
       })
 
@@ -217,7 +245,11 @@ onMounted(() => {
         }
       })
 
-      visualizer.value?.addEventListener('mouseup', () => {
+      visualizer.value?.addEventListener('mouseup', (event) => {
+        if (guiContainer.contains(event.target as Node)) {
+          return
+        }
+
         if (holdTimeout) {
           clearTimeout(holdTimeout)
         }
