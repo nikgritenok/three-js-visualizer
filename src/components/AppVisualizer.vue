@@ -95,21 +95,21 @@ colorsFolder
   .name('Красный')
   .onChange(function (value) {
     uniforms.u_red.value = Number(value)
-    localStorage.setItem('visualizerParams', JSON.stringify(params)) // Сохраняем параметры в localStorage
+    localStorage.setItem('visualizerParams', JSON.stringify(params))
   })
 colorsFolder
   .add(params, 'green', 0, 1)
   .name('Зеленый')
   .onChange(function (value) {
     uniforms.u_green.value = Number(value)
-    localStorage.setItem('visualizerParams', JSON.stringify(params)) // Сохраняем параметры в localStorage
+    localStorage.setItem('visualizerParams', JSON.stringify(params))
   })
 colorsFolder
   .add(params, 'blue', 0, 1)
   .name('Синий')
   .onChange(function (value) {
     uniforms.u_blue.value = Number(value)
-    localStorage.setItem('visualizerParams', JSON.stringify(params)) // Сохраняем параметры в localStorage
+    localStorage.setItem('visualizerParams', JSON.stringify(params))
   })
 
 const bloomFolder = gui.addFolder('Свечение')
@@ -119,7 +119,7 @@ bloomFolder
   .onChange(function (value) {
     bloomPass.threshold = Number(value)
     bloomComposer.render()
-    localStorage.setItem('visualizerParams', JSON.stringify(params)) // Сохраняем параметры в localStorage
+    localStorage.setItem('visualizerParams', JSON.stringify(params))
   })
 bloomFolder
   .add(params, 'strength', 0, 3)
@@ -127,7 +127,7 @@ bloomFolder
   .onChange(function (value) {
     bloomPass.strength = Number(value)
     bloomComposer.render()
-    localStorage.setItem('visualizerParams', JSON.stringify(params)) // Сохраняем параметры в localStorage
+    localStorage.setItem('visualizerParams', JSON.stringify(params))
   })
 bloomFolder
   .add(params, 'radius', 0, 1)
@@ -135,10 +135,30 @@ bloomFolder
   .onChange(function (value) {
     bloomPass.radius = Number(value)
     bloomComposer.render()
-    localStorage.setItem('visualizerParams', JSON.stringify(params)) // Сохраняем параметры в localStorage
+    localStorage.setItem('visualizerParams', JSON.stringify(params))
   })
 
-// обработка изменения окна
+const geometryFolder = gui.addFolder('Геометрия')
+geometryFolder
+  .add(mesh.scale, 'x', 0.5, 5)
+  .name('Размер по X')
+  .onChange(() => mesh.scale.set(mesh.scale.x, mesh.scale.y, mesh.scale.z))
+geometryFolder
+  .add(mesh.scale, 'y', 0.5, 5)
+  .name('Размер по Y')
+  .onChange(() => mesh.scale.set(mesh.scale.x, mesh.scale.y, mesh.scale.z))
+geometryFolder
+  .add(mesh.scale, 'z', 0.5, 5)
+  .name('Размер по Z')
+  .onChange(() => mesh.scale.set(mesh.scale.x, mesh.scale.y, mesh.scale.z))
+
+const materialFolder = gui.addFolder('Материал')
+materialFolder.add(mesh.material, 'wireframe').name('Wireframe')
+materialFolder
+  .add(mesh.material, 'opacity', 0, 1)
+  .name('Прозрачность')
+  .onChange((value) => (mesh.material.transparent = value < 1))
+
 function updateRendererSize() {
   nextTick(() => {
     const footer = document.querySelector('.footer') as HTMLElement | null
