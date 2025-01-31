@@ -29,6 +29,13 @@ const playSong = async (song: ISong) => {
 const toggleVolume = () => {
   showVolumeSlider.value = !showVolumeSlider.value
 }
+
+const handleFileUpload = (event: Event) => {
+  const file = event.target.files[0]
+  if (file) {
+    store.loadUserSong(file)
+  }
+}
 </script>
 
 <template>
@@ -50,6 +57,9 @@ const toggleVolume = () => {
           <i class="pi pi-play"></i>
           <span>{{ store.currentSong && store.currentSong.name }}</span>
         </div>
+        <app-button label="загрузить свой трек"
+          ><input type="file" @change="handleFileUpload" accept="audio/*"
+        /></app-button>
       </div>
       <div class="progress">
         <span>{{ formatTime(store.currentTime) }}</span>

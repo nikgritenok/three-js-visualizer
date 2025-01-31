@@ -29,6 +29,46 @@ export const useAudioStore = defineStore('audio', {
       this.analyser = new THREE.AudioAnalyser(this.sound, analyserSize)
     },
 
+    loadUserSong(file: File) {
+      if (!this.sound || !this.listener) return
+
+      const reader = new FileReader()
+
+      reader.onload = async (event) => {
+        const arrayBuffer = event.target?.result as ArrayBuffer
+        if (!arrayBuffer) return
+
+        const audioLoader = new THREE.AudioLoader()
+
+        try {
+          const buffer = await new Promise<AudioBuffer>((resolve, reject) => {
+            const context = new (window.AudioContext || (window as any).webkitAudioContext)()
+            context.decodeAudioData(arrayBuffer, resolve, reject)
+          })
+
+          this.sound!.setBuffer(buffer)
+          this.sound!.setVolume(this.volume)
+          this.sound!.onEnded = () => {
+            this.setCurrentSong({ name: '', src: '' })
+            this.currentTime = 0
+          }
+          this.duration = buffer.duration
+
+          this.setCurrentSong({ name: file.name, src: URL.createObjectURL(file) })
+
+          this.currentTime = 0
+          this.offset = 0
+          this.startContextTime = 0
+
+          this.play()
+        } catch (error) {
+          console.error('Ошибка при загрузке пользовательского трека:', error)
+        }
+      }
+
+      reader.readAsArrayBuffer(file)
+    },
+
     updateProgress() {
       if (!this.sound) return
 
