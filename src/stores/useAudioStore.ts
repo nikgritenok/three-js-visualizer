@@ -133,6 +133,8 @@ export const useAudioStore = defineStore('audio', {
       }
     },
     setTime(time: number) {
+      if (!this.sound) return
+
       this.sound?.stop()
       this.sound.offset = time
       this.sound?.play()
