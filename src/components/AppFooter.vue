@@ -31,7 +31,7 @@ const toggleVolume = () => {
 }
 
 const handleFileUpload = (event: Event) => {
-  const file = event.target.files[0]
+  const file = (event.target as HTMLInputElement).files?.[0]
   if (file) {
     store.loadUserSong(file)
   }
@@ -57,8 +57,8 @@ const handleFileUpload = (event: Event) => {
           <i class="pi pi-play"></i>
           <span>{{ store.currentSong && store.currentSong.name }}</span>
         </div>
-        <app-button label="загрузить свой трек"
-          ><input type="file" @change="handleFileUpload" accept="audio/*"
+        <app-button class="upload" variant="text" label="Primary"
+          >Загрузить свою песню<input type="file" @change="handleFileUpload" accept="audio/*"
         /></app-button>
       </div>
       <div class="progress">
@@ -163,5 +163,17 @@ li {
 .progress input[id='progress'] {
   flex-grow: 1;
   margin: 0 10px;
+}
+
+.upload {
+  position: relative;
+  z-index: 10;
+  color: #000;
+}
+
+.upload input[type='file'] {
+  opacity: 0;
+  position: absolute;
+  z-index: 11;
 }
 </style>

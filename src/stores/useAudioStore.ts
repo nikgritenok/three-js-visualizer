@@ -29,44 +29,50 @@ export const useAudioStore = defineStore('audio', {
       this.analyser = new THREE.AudioAnalyser(this.sound, analyserSize)
     },
 
-    loadUserSong(file: File) {
+    async loadUserSong(file: File) {
       if (!this.sound || !this.listener) return
 
-      const reader = new FileReader()
-
-      reader.onload = async (event) => {
-        const arrayBuffer = event.target?.result as ArrayBuffer
-        if (!arrayBuffer) return
-
-        const audioLoader = new THREE.AudioLoader()
-
-        try {
-          const buffer = await new Promise<AudioBuffer>((resolve, reject) => {
-            const context = new (window.AudioContext || (window as any).webkitAudioContext)()
-            context.decodeAudioData(arrayBuffer, resolve, reject)
-          })
-
-          this.sound!.setBuffer(buffer)
-          this.sound!.setVolume(this.volume)
-          this.sound!.onEnded = () => {
-            this.setCurrentSong({ name: '', src: '' })
-            this.currentTime = 0
-          }
-          this.duration = buffer.duration
-
-          this.setCurrentSong({ name: file.name, src: URL.createObjectURL(file) })
-
-          this.currentTime = 0
-          this.offset = 0
-          this.startContextTime = 0
-
-          this.play()
-        } catch (error) {
-          console.error('Ошибка при загрузке пользовательского трека:', error)
-        }
+      try {
+        const buffer = await this.decodeAudioFile(file)
+        this.setupAudio(buffer)
+        this.setCurrentSong({ name: file.name, src: URL.createObjectURL(file) })
+        this.resetAudioState()
+        this.play()
+      } catch (error) {
+        console.error('Ошибка при загрузке пользовательского трека:', error)
       }
+    },
 
-      reader.readAsArrayBuffer(file)
+    async decodeAudioFile(file: File): Promise<AudioBuffer> {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = async (event) => {
+          const arrayBuffer = event.target?.result as ArrayBuffer
+          if (!arrayBuffer) return reject(new Error('Не удалось прочитать файл'))
+
+          const context = new (window.AudioContext || (window as any).webkitAudioContext)()
+          context.decodeAudioData(arrayBuffer, resolve, reject)
+        }
+        reader.readAsArrayBuffer(file)
+      })
+    },
+
+    setupAudio(buffer: AudioBuffer) {
+      if (!this.sound) return
+
+      this.sound.setBuffer(buffer)
+      this.sound.setVolume(this.volume)
+      this.sound.onEnded = () => {
+        this.setCurrentSong({ name: '', src: '' })
+        this.currentTime = 0
+      }
+      this.duration = buffer.duration
+    },
+
+    resetAudioState() {
+      this.currentTime = 0
+      this.offset = 0
+      this.startContextTime = 0
     },
 
     updateProgress() {
