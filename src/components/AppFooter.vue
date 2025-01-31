@@ -15,10 +15,10 @@ function formatTime(duration: number): string {
   return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
 }
 
-// Функция для выбора песни
-const playSong = (song: ISong) => {
+const playSong = async (song: ISong) => {
   console.log('1 шаг: Выбрана песня', song)
-  store.loadSong(song)
+  await store.loadSong(song)
+  console.log('4 шаг: Песня воспроизводится')
   store.play()
 }
 

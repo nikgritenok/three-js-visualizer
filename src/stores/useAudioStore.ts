@@ -39,7 +39,9 @@ export const useAudioStore = defineStore('audio', {
       update()
     },
 
-    loadSong(song: ISong) {
+    async loadSong(song: ISong): Promise<void> {
+      console.log('2 шаг: Выбрана песня', song)
+
       if (!this.sound || !this.listener) return
 
       if (this.sound.isPlaying) {
@@ -48,14 +50,26 @@ export const useAudioStore = defineStore('audio', {
 
       const audioLoader = new THREE.AudioLoader()
 
-      audioLoader.load(song.src, (buffer) => {
+      try {
+        const buffer = await new Promise<AudioBuffer>((resolve, reject) => {
+          audioLoader.load(
+            song.src,
+            (buffer) => resolve(buffer),
+            undefined,
+            (error) => reject(error),
+          )
+        })
+
         this.sound!.setBuffer(buffer)
         this.sound!.setVolume(this.volume)
         this.sound!.onEnded = () => this.setCurrentSong({ name: '', src: '' })
         this.duration = buffer.duration
 
+        console.log('3 шаг: Песня загружена', song)
         this.setCurrentSong(song)
-      })
+      } catch (error) {
+        console.error('Ошибка при загрузке песни:', error)
+      }
     },
 
     setVolume(volume: number) {
