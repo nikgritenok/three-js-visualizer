@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppFooter from './components/AppFooter.vue'
 import AppVisualizer from './components/AppVisualizer.vue'
-import { SpeedInsights } from '@vercel/speed-insights/next'
+import { SpeedInsights } from '@vercel/speed-insights/vue'
 </script>
 
 <template>
