@@ -16,9 +16,7 @@ function formatTime(duration: number): string {
 }
 
 const playSong = async (song: ISong) => {
-  console.log('1 шаг: Выбрана песня', song)
   await store.loadSong(song)
-  console.log('4 шаг: Песня воспроизводится')
   store.play()
 }
 

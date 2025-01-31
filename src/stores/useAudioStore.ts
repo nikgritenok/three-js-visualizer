@@ -40,8 +40,6 @@ export const useAudioStore = defineStore('audio', {
     },
 
     async loadSong(song: ISong): Promise<void> {
-      console.log('2 шаг: Выбрана песня', song)
-
       if (!this.sound || !this.listener) return
 
       if (this.sound.isPlaying) {
@@ -65,7 +63,6 @@ export const useAudioStore = defineStore('audio', {
         this.sound!.onEnded = () => this.setCurrentSong({ name: '', src: '' })
         this.duration = buffer.duration
 
-        console.log('3 шаг: Песня загружена', song)
         this.setCurrentSong(song)
       } catch (error) {
         console.error('Ошибка при загрузке песни:', error)
