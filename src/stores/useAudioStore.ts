@@ -87,14 +87,9 @@ export const useAudioStore = defineStore('audio', {
       }
     },
     setTime(time: number) {
-      if (!this.sound) {
-        console.warn('Звук не инициализирован!')
-        return
-      }
-
-      this.sound.stop()
+      this.sound?.stop()
       this.sound.offset = time
-      this.sound.play()
+      this.sound?.play()
       this.currentTime = time
     },
 
