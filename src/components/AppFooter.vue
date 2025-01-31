@@ -17,8 +17,9 @@ function formatTime(duration: number): string {
 
 // Функция для выбора песни
 const playSong = (song: ISong) => {
-  console.log(song)
+  console.log('1 шаг: Выбрана песня', song)
   store.loadSong(song)
+  store.play()
 }
 
 const toggleVolume = () => {

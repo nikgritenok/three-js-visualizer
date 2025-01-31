@@ -177,7 +177,7 @@ onMounted(() => {
     store.initAudio(camera, 32)
     store.loadSong({
       name: 'dominic fike - baby doll',
-      src: '/public/songs/dominic vike - baby doll.mp3',
+      src: '/songs/dominic vike - baby doll.mp3',
     })
 
     if (visualizer.value) {

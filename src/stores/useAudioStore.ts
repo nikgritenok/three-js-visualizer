@@ -8,26 +8,22 @@ export const useAudioStore = defineStore('audio', {
     sound: null as THREE.Audio | null,
     listener: null as THREE.AudioListener | null,
     analyser: null as THREE.AudioAnalyser | null,
-    currentTime: 0, // Текущее время трека
-    duration: 0, // Длительность трека
+    currentTime: 0,
+    duration: 0,
     volume: 0.5 as number,
     songs: [
-      { name: 'dominic fike - baby doll', src: '/public/songs/dominic vike - baby doll.mp3' },
-      { name: 'frozy - kompa passion', src: '/public/songs/frozy - kompa passion.mp3' },
-      { name: 'saluki - north north', src: '/public/songs/saluki - north north.mp3' },
+      { name: 'dominic fike - baby doll', src: '/songs/dominic vike - baby doll.mp3' },
+      { name: 'frozy - kompa passion', src: '/songs/frozy - kompa passion.mp3' },
+      { name: 'saluki - north north', src: '/songs/saluki - north north.mp3' },
     ],
   }),
 
   actions: {
     initAudio(camera: THREE.Camera, analyserSize = 32) {
-      // Создаем слушатель звука и прикрепляем к камере
       this.listener = new THREE.AudioListener()
       camera.add(this.listener)
 
-      // Создаем сам звук
       this.sound = new THREE.Audio(this.listener)
-
-      // Создаем Analyser, который будет возвращать данные частот
       this.analyser = new THREE.AudioAnalyser(this.sound, analyserSize)
     },
 
@@ -46,7 +42,6 @@ export const useAudioStore = defineStore('audio', {
     loadSong(song: ISong) {
       if (!this.sound || !this.listener) return
 
-      // Если уже есть звук, остановить его перед загрузкой нового
       if (this.sound.isPlaying) {
         this.sound.stop()
       }
@@ -59,9 +54,7 @@ export const useAudioStore = defineStore('audio', {
         this.sound!.onEnded = () => this.setCurrentSong({ name: '', src: '' })
         this.duration = buffer.duration
 
-        // Устанавливаем текущую песню и сразу запускаем проигрывание
         this.setCurrentSong(song)
-        this.play()
       })
     },
 
