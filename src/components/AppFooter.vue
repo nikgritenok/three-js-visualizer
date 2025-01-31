@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useAudioStore } from '@/stores/useAudioStore'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import type { ISong } from '@/types'
 
 const store = useAudioStore()

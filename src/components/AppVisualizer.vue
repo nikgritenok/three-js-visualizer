@@ -159,16 +159,6 @@ if (footer) {
 
 window.addEventListener('resize', updateRendererSize)
 
-// ДВИЖЕНИЕ МЫШИ (для эффекта, если нужно)
-let mouseX = 0
-let mouseY = 0
-document.addEventListener('mousemove', function (e) {
-  const windowHalfX = window.innerWidth / 2
-  const windowHalfY = window.innerHeight / 2
-  mouseX = (e.clientX - windowHalfX) / 100
-  mouseY = (e.clientY - windowHalfY) / 100
-})
-
 // АНИМАЦИЯ
 const clock = new THREE.Clock()
 
