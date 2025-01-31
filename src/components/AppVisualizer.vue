@@ -85,9 +85,6 @@ controls.screenSpacePanning = false
 controls.minDistance = 2
 controls.maxDistance = 10
 
-// УДАЛЯЕМ ЛОГИКУ СО ЗВУКОМ ИЗ КОМПОНЕНТА!
-// Вместо неё будем обращаться только к методу initAudio() и loadSong() из стора.
-
 // GUI
 const gui = new GUI({ autoPlace: false })
 const colorsFolder = gui.addFolder('Цвет')
@@ -133,10 +130,9 @@ bloomFolder
     bloomComposer.render()
   })
 
-// ССЫЛКА НА DIV.visualizer
 const visualizer = ref<HTMLElement | null>(null)
 
-// ОБРАБОТКА РАЗМЕРА ОКНА
+// обработка изменения окна
 function updateRendererSize() {
   nextTick(() => {
     const footer = document.querySelector('.footer') as HTMLElement | null
@@ -159,14 +155,12 @@ if (footer) {
 
 window.addEventListener('resize', updateRendererSize)
 
-// АНИМАЦИЯ
+// анимация
 const clock = new THREE.Clock()
 
 function animate() {
-  // Обновляем uniform'ы
   uniforms.u_time.value = clock.getElapsedTime()
 
-  // Достаём частоту из Analyser'а из стора, если он есть
   if (store.analyser) {
     uniforms.u_frequency.value = store.analyser.getAverageFrequency()
   }
@@ -180,9 +174,7 @@ onMounted(() => {
   nextTick(() => {
     updateRendererSize()
 
-    // ИНИЦИАЛИЗАЦИЯ АУДИО В СТОРЕ
     store.initAudio(camera, 32)
-    // Загружаем нужный трек
     store.loadSong({
       name: 'dominic fike - baby doll',
       src: '/public/songs/dominic vike - baby doll.mp3',
@@ -194,7 +186,6 @@ onMounted(() => {
       guiContainer.style.top = '0px'
       guiContainer.style.right = '0px'
 
-      // Чтобы клики по GUI не шли "сквозь" интерфейс
       guiContainer.addEventListener('click', (event) => {
         event.stopPropagation()
       })
@@ -203,7 +194,6 @@ onMounted(() => {
       visualizer.value.appendChild(guiContainer)
       guiContainer.appendChild(gui.domElement)
 
-      // При клике на визуализатор (или другую кнопку) включаем звук
       visualizer.value.addEventListener('click', () => {
         store.togglePlay()
       })
