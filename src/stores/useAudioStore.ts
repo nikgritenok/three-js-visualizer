@@ -12,9 +12,9 @@ export const useAudioStore = defineStore('audio', {
     duration: 0, // Длительность трека
     volume: 0.5 as number,
     songs: [
-      { name: 'dominic fike - baby doll', src: '/src/assets/songs/dominic vike - baby doll.mp3' },
-      { name: 'frozy - kompa passion', src: '/src/assets/songs/frozy - kompa passion.mp3' },
-      { name: 'saluki - north north', src: '/src/assets/songs/saluki - north north.mp3' },
+      { name: 'dominic fike - baby doll', src: '/public/songs/dominic vike - baby doll.mp3' },
+      { name: 'frozy - kompa passion', src: '/public/songs/frozy - kompa passion.mp3' },
+      { name: 'saluki - north north', src: '/public/songs/saluki - north north.mp3' },
     ],
   }),
 
