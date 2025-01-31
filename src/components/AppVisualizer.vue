@@ -147,6 +147,12 @@ function updateRendererSize() {
     renderer.setSize(window.innerWidth, window.innerHeight - footerHeight)
     camera.aspect = window.innerWidth / (window.innerHeight - footerHeight)
     camera.updateProjectionMatrix()
+
+    if (window.innerWidth < 800) {
+      camera.position.z = 20
+    } else {
+      camera.position.z = 14
+    }
   })
 }
 
