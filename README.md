@@ -1,39 +1,41 @@
-# three-js-visualizer
+<h1>3D аудио визуализатор</h1>
 
-This template should help get you started developing with Vue 3 in Vite.
+## Описание
 
-## Recommended IDE Setup
+3D визуализация музыки используя Three.js и web audio API
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+[Try it here](https://three-js-visualizer.vercel.app/)
 
-## Type Support for `.vue` Imports in TS
+### Главный экран
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+<img src="public/screenshot.png">
 
-## Customize configuration
+### Технологии
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+- **Основное:** TS, Vue.js, Pinia
+- **Сборка:** Vite, Yarn
+- **UI:** PrimeVue, PrimeFlex, PrimeIcons
+- **3D & Аудио:** THREE.js, Web Audio API
+- **Кодстайл:** ESLint, Prettier
 
-## Project Setup
+## Установка
 
-```sh
-yarn
-```
+1. Склонируйте репозиторий:
 
-### Compile and Hot-Reload for Development
+   ```bash
+   git clone https://github.com/nikgritenok/three-js-visualizer.git
+   ```
 
-```sh
-yarn dev
-```
+2. Установите зависимости:
 
-### Type-Check, Compile and Minify for Production
+   ```bash
+   yarn install
+   ```
 
-```sh
-yarn build
-```
+3. Запустите приложение:
 
-### Lint with [ESLint](https://eslint.org/)
+   ```bash
+   yarn dev
+   ```
 
-```sh
-yarn lint
-```
+4. Откройте приложение в браузере по адресу [http://localhost:5173](http://localhost:5173).
