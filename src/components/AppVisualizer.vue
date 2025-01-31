@@ -88,7 +88,6 @@ controls.minDistance = 2
 controls.maxDistance = 10
 
 // GUI
-console.log('params где gui', params)
 const gui = new GUI({ autoPlace: false })
 const colorsFolder = gui.addFolder('Цвет')
 colorsFolder
@@ -196,8 +195,6 @@ onMounted(() => {
 
       gui.updateDisplay()
     }
-
-    console.log('params где парсятся', params)
 
     updateRendererSize()
 

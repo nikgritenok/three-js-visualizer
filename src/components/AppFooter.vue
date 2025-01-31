@@ -15,6 +15,12 @@ function formatTime(duration: number): string {
   return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
 }
 
+const updateTime = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  const newTime = parseFloat(input.value)
+  store.setTime(newTime)
+}
+
 const playSong = async (song: ISong) => {
   await store.loadSong(song)
   store.play()
@@ -52,8 +58,8 @@ const toggleVolume = () => {
           id="progress"
           :value="store.currentTime"
           :max="store.duration"
-          step="0.1"
-          @input="store.setTime(parseFloat(($event.target as HTMLInputElement).value))"
+          step="0.01"
+          @input="updateTime($event)"
         />
         <span>{{ formatTime(store.duration) }}</span>
       </div>

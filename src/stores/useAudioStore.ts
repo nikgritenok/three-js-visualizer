@@ -10,9 +10,11 @@ export const useAudioStore = defineStore('audio', {
     analyser: null as THREE.AudioAnalyser | null,
     currentTime: 0,
     duration: 0,
+    startContextTime: 0,
+    offset: 0,
     volume: 0.5 as number,
     songs: [
-      { name: 'dominic fike - baby doll', src: '/songs/dominic vike - baby doll.mp3' },
+      { name: 'dominic vike - baby doll', src: '/songs/dominic vike - baby doll.mp3' },
       { name: 'frozy - kompa passion', src: '/songs/frozy - kompa passion.mp3' },
       { name: 'saluki - north north', src: '/songs/saluki - north north.mp3' },
     ],
@@ -32,14 +34,17 @@ export const useAudioStore = defineStore('audio', {
 
       const update = () => {
         if (!this.sound || !this.sound.isPlaying) return
-        this.currentTime = this.sound.context.currentTime
+
+        this.currentTime = this.sound.context.currentTime - this.startContextTime + this.offset
+
         requestAnimationFrame(update)
       }
 
-      update()
+      requestAnimationFrame(update)
     },
 
     async loadSong(song: ISong): Promise<void> {
+      console.log('song', song, this.currentSong, this.currentTime)
       if (!this.sound || !this.listener) return
 
       if (this.sound.isPlaying) {
@@ -60,10 +65,16 @@ export const useAudioStore = defineStore('audio', {
 
         this.sound!.setBuffer(buffer)
         this.sound!.setVolume(this.volume)
-        this.sound!.onEnded = () => this.setCurrentSong({ name: '', src: '' })
+        this.sound!.onEnded = () => (
+          this.setCurrentSong({ name: '', src: '' }), (this.currentTime = 0)
+        )
         this.duration = buffer.duration
 
         this.setCurrentSong(song)
+
+        this.currentTime = 0
+        this.offset = 0
+        this.startContextTime = 0
       } catch (error) {
         console.error('Ошибка при загрузке песни:', error)
       }
@@ -76,18 +87,26 @@ export const useAudioStore = defineStore('audio', {
       }
     },
     setTime(time: number) {
-      if (this.sound && this.sound.isPlaying) {
-        this.sound.stop() // Останавливаем воспроизведение
-        this.sound.play(time) // Запускаем воспроизведение с нового времени (в секундах)
-        this.currentTime = time // Обновляем текущее время
+      if (!this.sound) {
+        console.warn('Звук не инициализирован!')
+        return
       }
+
+      this.sound.stop()
+      this.sound.offset = time
+      this.sound.play()
+      this.currentTime = time
     },
 
     play() {
-      if (this.sound && !this.sound.isPlaying) {
-        this.sound.play()
-        this.updateProgress()
-      }
+      if (!this.sound || this.sound.isPlaying) return
+
+      this.startContextTime = this.sound.context.currentTime
+
+      this.sound.offset = this.offset
+      this.sound.play()
+
+      this.updateProgress()
     },
 
     togglePlay() {
@@ -101,6 +120,7 @@ export const useAudioStore = defineStore('audio', {
     pause() {
       if (this.sound && this.sound.isPlaying) {
         this.sound.pause()
+        this.offset = this.currentTime
       }
     },
 
