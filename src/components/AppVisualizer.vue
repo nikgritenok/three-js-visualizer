@@ -12,6 +12,8 @@ import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 import { onMounted, ref, nextTick } from 'vue'
 import { useAudioStore } from '@/stores/useAudioStore'
 
+const visualizer = ref<HTMLElement | null>(null)
+
 // ИНИЦИАЛИЗАЦИЯ СЦЕНЫ, КАМЕРЫ, РЕНДЕРА
 const store = useAudioStore()
 const renderer = new THREE.WebGLRenderer({ antialias: true })
@@ -130,8 +132,6 @@ bloomFolder
     bloomComposer.render()
   })
 
-const visualizer = ref<HTMLElement | null>(null)
-
 // обработка изменения окна
 function updateRendererSize() {
   nextTick(() => {
@@ -190,13 +190,48 @@ onMounted(() => {
         event.stopPropagation()
       })
 
+      // ОБРАБОТКА МЫШИ
+
+      let isRotating = false
+      let holdTimeout: number | null = null
+      let lastMouseX = 0
+      let lastMouseY = 0
+
+      visualizer.value?.addEventListener('mousedown', (event) => {
+        lastMouseX = event.clientX
+        lastMouseY = event.clientY
+
+        holdTimeout = setTimeout(() => {
+          isRotating = true
+        }, 300)
+      })
+
+      visualizer.value?.addEventListener('mousemove', (event) => {
+        if (isRotating) {
+          const deltaX = event.clientX - lastMouseX
+          const deltaY = event.clientY - lastMouseY
+          mesh.rotation.y += deltaX * 0.01
+          mesh.rotation.x += deltaY * 0.01
+          lastMouseX = event.clientX
+          lastMouseY = event.clientY
+        }
+      })
+
+      visualizer.value?.addEventListener('mouseup', () => {
+        if (holdTimeout) {
+          clearTimeout(holdTimeout)
+        }
+
+        if (!isRotating) {
+          store.togglePlay()
+        }
+
+        isRotating = false
+      })
+
       visualizer.value.appendChild(renderer.domElement)
       visualizer.value.appendChild(guiContainer)
       guiContainer.appendChild(gui.domElement)
-
-      visualizer.value.addEventListener('click', () => {
-        store.togglePlay()
-      })
 
       animate()
     } else {
