@@ -20,3 +20,7 @@ yarn dev
 ```
 
 The browser asks for a file or microphone before the first frame draws, since the analyser needs a source.
+
+## License
+
+MIT, see [LICENSE](LICENSE).
