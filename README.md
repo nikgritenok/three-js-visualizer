@@ -1,41 +1,22 @@
-<h1>3D аудио визуализатор</h1>
+# 3D audio visualizer
 
-## Описание
+Music, drawn in three dimensions from the live audio stream. Three.js for the scene, Web Audio API for the analyser, Vue for the controls.
 
-3D визуализация музыки используя Three.js и web audio API
+**Try it:** https://three-js-visualizer.vercel.app/
 
-[Try it here](https://three-js-visualizer.vercel.app/)
+![Main screen](public/screenshot.png)
 
-### Главный экран
+## Stack
 
-<img src="public/screenshot.png">
+TypeScript, Vue 3, Pinia, Three.js, Web Audio API, PrimeVue, PrimeFlex, PrimeIcons, Vite, Yarn, ESLint and Prettier.
 
-### Технологии
+## Run
 
-- **Основное:** TS, Vue.js, Pinia
-- **Сборка:** Vite, Yarn
-- **UI:** PrimeVue, PrimeFlex, PrimeIcons
-- **3D & Аудио:** THREE.js, Web Audio API
-- **Кодстайл:** ESLint, Prettier
+```bash
+git clone https://github.com/nikgritenok/three-js-visualizer.git
+cd three-js-visualizer
+yarn install
+yarn dev
+```
 
-## Установка
-
-1. Склонируйте репозиторий:
-
-   ```bash
-   git clone https://github.com/nikgritenok/three-js-visualizer.git
-   ```
-
-2. Установите зависимости:
-
-   ```bash
-   yarn install
-   ```
-
-3. Запустите приложение:
-
-   ```bash
-   yarn dev
-   ```
-
-4. Откройте приложение в браузере по адресу [http://localhost:5173](http://localhost:5173).
+The browser asks for a file or microphone before the first frame draws, since the analyser needs a source.
